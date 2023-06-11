@@ -45,10 +45,16 @@ impl EmailClient {
                 email: self.sender.as_ref(),
             },
             subject: subject,
-            content: vec![EmailContent {
-                content_type: "text/plain",
-                value: text_content,
-            }],
+            content: vec![
+                EmailContent {
+                    content_type: "text/plain",
+                    value: text_content,
+                },
+                EmailContent {
+                    content_type: "text/html",
+                    value: html_content,
+                },
+            ],
         };
 
         let _builder = self

@@ -28,6 +28,11 @@ pub struct TestApp {
     pub email_server: MockServer,
 }
 
+pub struct ConfirmationLinks {
+    pub html: reqwest::Url,
+    pub plain_text: reqwest::Url,
+}
+
 impl TestApp {
     pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
         reqwest::Client::new()
@@ -39,7 +44,7 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub fn get_confirmation_link(&self, email_request: &wiremock::Request) -> reqwest::Url {
+    pub fn get_confirmation_links(&self, email_request: &wiremock::Request) -> ConfirmationLinks {
         let body: serde_json::Value = serde_json::from_slice(&email_request.body).unwrap();
 
         let get_link = |s: &str| {
@@ -55,7 +60,10 @@ impl TestApp {
             confirmation_link.set_port(Some(self.port)).unwrap();
             confirmation_link
         };
-        get_link(&body["content"][0]["value"].as_str().unwrap())
+        let plain_text = get_link(&body["content"][0]["value"].as_str().unwrap());
+        let html = get_link(&body["content"][1]["value"].as_str().unwrap());
+
+        ConfirmationLinks { html, plain_text }
     }
 }
 
