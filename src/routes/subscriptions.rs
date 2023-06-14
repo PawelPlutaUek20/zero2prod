@@ -9,6 +9,7 @@ use anyhow::Context;
 use chrono::Utc;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use sqlx::{PgPool, Postgres, Transaction};
+use std::convert::{TryFrom, TryInto};
 use uuid::Uuid;
 
 #[derive(serde::Deserialize)]
@@ -69,13 +70,18 @@ pub async fn subscribe(
         .await
         .context("Failed to acquire a Postgres connection from the pool")?;
 
-    let subscriber_id = insert_subscriber(&mut transaction, &new_subscriber).await.context("Failed to insert new subscriber in the database.")?;
+    let subscriber_id = insert_subscriber(&mut transaction, &new_subscriber)
+        .await
+        .context("Failed to insert new subscriber in the database.")?;
     let subscription_token = generate_subscription_token();
     store_token(&mut transaction, subscriber_id, &subscription_token)
         .await
         .context("Failed to store the confirmation token for a new subscriber.")?;
 
-    transaction.commit().await.context("Failed to commit SQL transaction to store a new subscriber.")?;
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to store a new subscriber.")?;
     send_confirmation_email(
         &email_client,
         new_subscriber,
@@ -169,7 +175,7 @@ pub async fn store_token(
     )
     .execute(transaction)
     .await
-    .map_err(|e| StoreTokenError(e))?;
+    .map_err(StoreTokenError)?;
     Ok(())
 }
 

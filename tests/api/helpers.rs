@@ -60,8 +60,8 @@ impl TestApp {
             confirmation_link.set_port(Some(self.port)).unwrap();
             confirmation_link
         };
-        let plain_text = get_link(&body["content"][0]["value"].as_str().unwrap());
-        let html = get_link(&body["content"][1]["value"].as_str().unwrap());
+        let plain_text = get_link(&body["text"].as_str().unwrap());
+        let html = get_link(&body["html"].as_str().unwrap());
 
         ConfirmationLinks { html, plain_text }
     }

@@ -43,7 +43,7 @@ impl EmailClient {
             text: text_content.to_owned(),
         };
 
-        let _builder = self
+         self
             .http_client
             .post(&url)
             .header(
@@ -88,10 +88,11 @@ mod tests {
             let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
 
             if let Ok(body) = result {
-                body.get("personalizations").is_some()
+                body.get("to").is_some()
                     && body.get("from").is_some()
                     && body.get("subject").is_some()
-                    && body.get("content").is_some()
+                    && body.get("text").is_some()
+                    && body.get("html").is_some()
             } else {
                 false
             }
