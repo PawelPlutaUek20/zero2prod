@@ -47,7 +47,7 @@
     },
     "query": "SELECT subscriber_id FROM subscription_tokens WHERE subscription_token = $1"
   },
-  "d049bc0c7acd702056de373921ae1cb9c8f51dbf7024d61a5ea5ad20672f6c60": {
+  "798f78b9eb9049a38b1c0f5a347dd378960532c3504f8e2133038aa4956791da": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -58,6 +58,6 @@
         ]
       }
     },
-    "query": "INSERT INTO subscription_tokens (subscription_token, subscriber_id)\n    VALUES ($1, $2)"
+    "query": "\n            INSERT INTO subscription_tokens (subscription_token, subscriber_id)\n            VALUES ($1, $2)\n        "
   }
 }
