@@ -33,28 +33,14 @@ impl EmailClient {
         html_content: &str,
         text_content: &str,
     ) -> Result<(), reqwest::Error> {
-        let url = format!("{}/v3/mail/send", self.base_url);
+        let url = format!("{}/emails", self.base_url);
 
         let request_body = SendEmailRequest {
-            personalizations: vec![Personalization {
-                to: vec![Recipient {
-                    email: recipient.as_ref(),
-                }],
-            }],
-            from: FromField {
-                email: self.sender.as_ref(),
-            },
-            subject: subject,
-            content: vec![
-                EmailContent {
-                    content_type: "text/plain",
-                    value: text_content,
-                },
-                EmailContent {
-                    content_type: "text/html",
-                    value: html_content,
-                },
-            ],
+            to: recipient.as_ref().to_owned(),
+            from: self.sender.as_ref().to_owned(),
+            subject: subject.to_owned(),
+            html: html_content.to_owned(),
+            text: text_content.to_owned(),
         };
 
         let _builder = self
@@ -74,33 +60,12 @@ impl EmailClient {
 }
 
 #[derive(serde::Serialize)]
-struct Recipient<'a> {
-    email: &'a str,
-}
-
-#[derive(serde::Serialize)]
-struct Personalization<'a> {
-    to: Vec<Recipient<'a>>,
-}
-
-#[derive(serde::Serialize)]
-struct FromField<'a> {
-    email: &'a str,
-}
-
-#[derive(serde::Serialize)]
-struct EmailContent<'a> {
-    #[serde(rename = "type")]
-    content_type: &'a str,
-    value: &'a str,
-}
-
-#[derive(serde::Serialize)]
-struct SendEmailRequest<'a> {
-    personalizations: Vec<Personalization<'a>>,
-    from: FromField<'a>,
-    subject: &'a str,
-    content: Vec<EmailContent<'a>>,
+struct SendEmailRequest {
+    to: String,
+    from: String,
+    text: String,
+    html: String,
+    subject: String,
 }
 
 #[cfg(test)]
@@ -161,7 +126,7 @@ mod tests {
 
         Mock::given(header_exists("Authorization"))
             .and(header("Content-Type", "application/json"))
-            .and(path("/v3/mail/send"))
+            .and(path("/emails"))
             .and(method("POST"))
             .and(SendEmailBodyMatcher)
             .respond_with(ResponseTemplate::new(200))
